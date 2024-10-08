@@ -2,9 +2,9 @@
 clear
 
 # Check if package is installed
-_isInstalledPacman() {
+_isInstalledDNF() {
     package="$1";
-    check="$(sudo pacman -Qs --color always "${package}" | grep "local" | grep "${package} ")";
+    check="$(sudo dnf list installed "${package}" 2>/dev/null | grep "${package} ")"; # Prevent error output if package is not found
     if [ -n "${check}" ] ; then
         echo 0; #'0' means 'true' in Bash
         return; #true
@@ -14,21 +14,37 @@ _isInstalledPacman() {
 }
 
 # Install required packages
-_installPackagesPacman() {
+_installPackagesDNF() {
     toInstall=();
     for pkg; do
-        if [[ $(_isInstalledPacman "${pkg}") == 0 ]]; then
+        if [[ $(_isInstalledDNF "${pkg}") == 0 ]]; then
             echo "${pkg} is already installed.";
             continue;
         fi;
+
+        # Special case for 'gum', add Charm repo and install gum if not found
+        if [[ "${pkg}" == "gum" ]]; then
+            echo "gum is not installed. Adding Charm repository..."
+            echo '[charm]
+name=Charm
+baseurl=https://repo.charm.sh/yum/
+enabled=1
+gpgcheck=1
+gpgkey=https://repo.charm.sh/yum/gpg.key' | sudo tee /etc/yum.repos.d/charm.repo
+            sudo rpm --import https://repo.charm.sh/yum/gpg.key
+            sudo dnf install gum -y
+            continue;
+        fi
+
         toInstall+=("${pkg}");
     done;
+    
     if [[ "${toInstall[@]}" == "" ]] ; then
-        # echo "All pacman packages are already installed.";
         return;
     fi;
-    printf "Package not installed:\n%s\n" "${toInstall[@]}";
-    sudo pacman --noconfirm -S "${toInstall[@]}";
+
+    printf "Installing packages:\n%s\n" "${toInstall[@]}";
+    sudo dnf install "${toInstall[@]}" -y;
 }
 
 # Required packages for the installer
@@ -37,10 +53,10 @@ packages=(
     "unzip"
     "gum"
     "jq"
-    "fuse2" 
+    "fuse" 
     "gtk4" 
     "libadwaita" 
-    "python"
+    "python3"
     "python-gobject"
 
 )
@@ -80,7 +96,7 @@ while true; do
 done
 
 # Synchronizing package databases
-sudo pacman -Sy
+sudo dnf refresh
 echo
 
 # Install required packages
