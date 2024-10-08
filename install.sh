@@ -101,7 +101,7 @@ echo
 
 # Install required packages
 echo ":: Checking that required packages are installed..."
-_installPackagesPacman "${packages[@]}";
+_installPackagesDNF "${packages[@]}";
 echo
 
 # Decide on installation directory
