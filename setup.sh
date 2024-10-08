@@ -1,4 +1,4 @@
-a#!/bin/bash
+aa#!/bin/bash
 clear
 
 # Some colors
@@ -41,12 +41,12 @@ done
 cd ~/Downloads
 
 # Remove existing folder
-if [ -d ml4w-hyprland-settings ] ;then
-    rm -rf ml4w-hyprland-settings
+if [ -d ml4w-hyprland-settings-fedora ] ;then
+    rm -rf ml4w-hyprland-settings-fedora
 fi
 
-if [ -d hyprland-settings ] ;then
-    rm -rf hyprland-settings
+if [ -d hyprland-settings-fedora ] ;then
+    rm -rf hyprland-settings-fedora
 fi
 
 # Clone the packages
