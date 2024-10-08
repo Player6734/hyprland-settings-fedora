@@ -1,4 +1,4 @@
-#!/bin/bash
+a#!/bin/bash
 clear
 
 # Some colors
@@ -53,7 +53,7 @@ fi
 git clone --depth 1 https://github.com/Player6734/hyprland-settings-fedora.git
 
 # Change into the folder
-cd hyprland-settings
+cd hyprland-settings-fedora
 
 # Start the script
 ./install.sh
