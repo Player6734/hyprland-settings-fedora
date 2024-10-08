@@ -11,7 +11,7 @@ The easiest way is to use the setup.sh script. The script will clone all files f
 Just copy/enter the following command into your terminal.
 
 ```
-bash <(curl -s https://raw.githubusercontent.com/mylinuxforwork/hyprland-settings/main/setup.sh)
+bash <(curl -s https://raw.githubusercontent.com/Player6734/hyprland-settings-fedora/refs/heads/main/setup.sh)
 ```
 
 Or you clone the repository manually with these commands:
