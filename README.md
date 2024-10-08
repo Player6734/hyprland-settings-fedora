@@ -18,7 +18,7 @@ Or you clone the repository manually with these commands:
 
 ```
 # git is required
-sudo pacman -S git
+sudo dnf install git
 
 # Change into your Downloads directory
 cd ~/Downloads
