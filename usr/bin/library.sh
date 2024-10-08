@@ -12,9 +12,9 @@
 # ------------------------------------------------------
 # Function: Is package installed
 # ------------------------------------------------------
-_isInstalledPacman() {
+_isInstalledDNF() {
     package="$1";
-    check="$(sudo pacman -Qs --color always "${package}" | grep "local" | grep "${package} ")";
+    check="$(sudo dnf list installed "${package}" 2>/dev/null | grep "${package} ")"; # Prevent error output if package is not found
     if [ -n "${check}" ] ; then
         echo 0; #'0' means 'true' in Bash
         return; #true
@@ -23,16 +23,6 @@ _isInstalledPacman() {
     return; #false
 }
 
-_isInstalledYay() {
-    package="$1";
-    check="$(yay -Qs --color always "${package}" | grep "local" | grep "\." | grep "${package} ")";
-    if [ -n "${check}" ] ; then
-        echo 0; #'0' means 'true' in Bash
-        return; #true
-    fi;
-    echo 1; #'1' means 'false' in Bash
-    return; #false
-}
 
 _isFolderEmpty() {
     folder="$1"
@@ -69,54 +59,39 @@ _installPackagesPacman() {
     sudo pacman --noconfirm -S "${toInstall[@]}";
 }
 
-_forcePackagesPacman() {
+_installPackagesDNF() {
     toInstall=();
     for pkg; do
-        toInstall+=("${pkg}");
-    done;
-
-    if [[ "${toInstall[@]}" == "" ]] ; then
-        # echo "All pacman packages are already installed.";
-        return;
-    fi;
-
-    # printf "Package not installed:\n%s\n" "${toInstall[@]}";
-    sudo pacman --noconfirm -S "${toInstall[@]}" --ask 4;
-}
-
-_installPackagesYay() {
-    toInstall=();
-    for pkg; do
-        if [[ $(_isInstalledYay "${pkg}") == 0 ]]; then
-            echo ":: ${pkg} is already installed.";
+        if [[ $(_isInstalledDNF "${pkg}") == 0 ]]; then
+            echo "${pkg} is already installed.";
             continue;
         fi;
+
+        # Special case for 'gum', add Charm repo and install gum if not found
+        if [[ "${pkg}" == "gum" ]]; then
+            echo "gum is not installed. Adding Charm repository..."
+            echo '[charm]
+name=Charm
+baseurl=https://repo.charm.sh/yum/
+enabled=1
+gpgcheck=1
+gpgkey=https://repo.charm.sh/yum/gpg.key' | sudo tee /etc/yum.repos.d/charm.repo
+            sudo rpm --import https://repo.charm.sh/yum/gpg.key
+            sudo dnf install gum -y
+            continue;
+        fi
+
         toInstall+=("${pkg}");
     done;
-
+    
     if [[ "${toInstall[@]}" == "" ]] ; then
-        # echo "All packages are already installed.";
         return;
     fi;
 
-    # printf "AUR packags not installed:\n%s\n" "${toInstall[@]}";
-    yay --noconfirm -S "${toInstall[@]}";
+    printf "Installing packages:\n%s\n" "${toInstall[@]}";
+    sudo dnf install "${toInstall[@]}" -y;
 }
 
-_forcePackagesYay() {
-    toInstall=();
-    for pkg; do
-        toInstall+=("${pkg}");
-    done;
-
-    if [[ "${toInstall[@]}" == "" ]] ; then
-        # echo "All packages are already installed.";
-        return;
-    fi;
-
-    # printf "AUR packags not installed:\n%s\n" "${toInstall[@]}";
-    yay --noconfirm -S "${toInstall[@]}" --ask 4;
-}
 
 # ------------------------------------------------------
 # Create symbolic links
