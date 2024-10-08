@@ -24,7 +24,7 @@ sudo dnf install git
 cd ~/Downloads
 
 # Clone the packages
-git clone --depth 1 https://github.com/mylinuxforwork/hyprland-settings.git
+git clone --depth 1 https://github.com/Player6734/hyprland-settings-fedora.git
 
 # Change into the folder
 cd hyprland-settings
